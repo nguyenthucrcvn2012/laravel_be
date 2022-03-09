@@ -7,33 +7,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Auth;
 
 class AuthController extends Controller
 {
     public function login(Request $request){
 
         $validator = Validator::make($request->all(), [
-            'email' => 'required|max:191',
+            'email' => 'required|max:191|email',
             'password' => 'required|min:8',
         ]);
 
-        if($validator->failed()){
-
+        if($validator->fails()){
             return response()->json([
                 'validation_errors' => $validator->messages()
             ]);
         }
         else{
-            $user = User::where('email', $request->email)->first();
 
-            if(!$user || Hash::check($request->password, $user->password)){
-
-                return response()->json([
-                    'status' => 401,
-                    'message' => 'Sai tài khoản hoặc mật khẩu'
-                ]);
-            }
-            else{
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_active' => 1])) {
+                $user = User::where('email', $request->email)->first();
                 $token = $user->createToken($user->email.'_Token')->plainTextToken;
 
                 return response()->json([
@@ -41,6 +34,12 @@ class AuthController extends Controller
                     'usename' => $user->name,
                     'message' => 'Đăng nhập thành công',
                     'token' => $token
+                ]);
+            }
+            else{
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Sai tài khoản hoặc mật khẩu'
                 ]);
             }
         }
