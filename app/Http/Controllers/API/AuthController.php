@@ -11,6 +11,22 @@ use Auth;
 
 class AuthController extends Controller
 {
+
+
+    public function logout(){
+
+        auth()->user()->tokens()->delete();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Đăng xuất thành công'
+        ]);
+    }
+
+    /**
+     * @param Request $request email, password
+     * @return \Illuminate\Http\JsonResponse
+     *
+     */
     public function login(Request $request){
 
         $validator = Validator::make($request->all(), [
@@ -24,16 +40,15 @@ class AuthController extends Controller
             ]);
         }
         else{
-
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_active' => 1])) {
                 $user = User::where('email', $request->email)->first();
-                $token = $user->createToken($user->email.'_Token')->plainTextToken;
 
+                $token = $user->createToken($user->email.'_Token')->plainTextToken;
+                $user->token = $token;
                 return response()->json([
                     'status' => 200,
-                    'usename' => $user->name,
-                    'message' => 'Đăng nhập thành công',
-                    'token' => $token
+                    'user' => $user,
+                    'message' => 'Đăng nhập thành công'
                 ]);
             }
             else{
@@ -43,5 +58,14 @@ class AuthController extends Controller
                 ]);
             }
         }
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getInfo(Request $request) {
+
+        return response()->json($request->user());
     }
 }

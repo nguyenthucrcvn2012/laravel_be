@@ -8,4 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Customer extends Model
 {
     use HasFactory;
+    public $timestamps = true;
+    protected $fillable = [];
+    protected $table = "customer";
+    protected $primaryKey = "id";
+
 }
