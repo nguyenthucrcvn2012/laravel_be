@@ -14,5 +14,5 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    dd(\Illuminate\Support\Facades\Hash::make('12345677'));
+    dd(\Illuminate\Support\Facades\Hash::make('12345678'));
 });

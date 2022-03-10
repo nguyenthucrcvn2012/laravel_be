@@ -17,16 +17,16 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('email') ;
-            $table->string('password', 50);
-            $table->rememberToken();
-            $table->string('verify_email', 100);
+            $table->string('password', 70);
+            $table->rememberToken()->nullable();
+            $table->string('verify_email', 100)->nullable();
             $table->tinyInteger('is_active')->default(1)
                 ->comment('0: Không hoạt động , 1: hoạt động');
             $table->tinyInteger('is_delete')->default(0)
                 ->comment('0: Bình thường , 1: đã xóa');
             $table->string('group_role', 50);
             $table->timestamp('last_login_at');
-            $table->string('last_login_ip', 40);
+            $table->string('last_login_ip', 40)->nullable();
             $table->timestamps();
         });
     }

@@ -28,7 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::get('info-user', [AuthController::class, 'getInfo']);
 //
-//Route::resource('users', UserController::class);
+Route::resource('users', UserController::class);
 //Route::resource('customers', CustomerController::class);
 //Route::resource('products', ProductController::class);
 
