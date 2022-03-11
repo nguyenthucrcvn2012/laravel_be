@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\CustomerResource;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -14,7 +16,20 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        //
+        $query = Customer::orderBy('customer_id', 'DESC')->paginate(10);
+
+        $customers = CustomerResource::collection($query);
+
+        if($customers->count() > 0){
+            return response()->json([
+                'status' => 200,
+                'customers' => $customers
+            ]);
+        };
+        return response()->json([
+            'status' => 401,
+            'customers' => [],
+        ]);
     }
 
     /**

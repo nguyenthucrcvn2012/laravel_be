@@ -26,10 +26,12 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout']);
 });
-Route::get('info-user', [AuthController::class, 'getInfo']);
-//
+
 Route::resource('users', UserController::class);
-//Route::resource('customers', CustomerController::class);
+
+Route::put('/users/active/{id}', [UserController::class, 'active'])->name('users.active');
+
+Route::resource('customers', CustomerController::class);
 //Route::resource('products', ProductController::class);
 
 

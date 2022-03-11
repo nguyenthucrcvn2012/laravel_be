@@ -6,9 +6,52 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use Auth;
 
 class UserController extends Controller
 {
+    /**
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function active($id) {
+
+        $user = User::find($id);
+        if($user){
+            $active = 0;
+            if($user->is_active == 0){
+
+                $active = 1;
+            }
+
+            $query = User::where('id', $id)->update(['is_active' => $active]);
+            if($query){
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Cập nhật thành công!'
+                ]);
+            }
+            else{
+
+                return response()->json([
+                    'status' => 404,
+                    'users' => [],
+                    'message' => 'Lỗi thử lại sau!'
+                ]);
+            }
+        }
+        else{
+
+            return response()->json([
+                'status' => 404,
+                'users' => [],
+                'message' => 'Lỗi thử lại sau!'
+            ]);
+        }
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,8 +59,23 @@ class UserController extends Controller
      */
     public function index()
     {
+        $arrayIDAdmin = [100];
+        $query = User::orderBy('id', 'DESC')->where('is_delete', 0)
+            ->whereNotIn('id', $arrayIDAdmin)->paginate(10);
+        UserResource::collection($query);
+        $users = $query;
 
-        return response()->json();
+        if($users->count() > 0){
+            return response()->json([
+                'status' => 200,
+                'users' => $users
+            ]);
+        };
+        return response()->json([
+            'status' => 401,
+            'users' => [],
+            'message' => 'Không tìm thấy dữ liệu'
+        ]);
     }
 
     /**
@@ -83,6 +141,21 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $query = User::where('id', $id)->update(['is_delete' => 1]);
+        if($query){
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Xóa thành công!'
+            ]);
+        }
+        else{
+
+            return response()->json([
+                'status' => 404,
+                'users' => [],
+                'message' => 'Lỗi thử lại sau!'
+            ]);
+        }
     }
 }
