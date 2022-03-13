@@ -18,7 +18,7 @@ class CustomerTableSeeder extends Seeder
 
         $faker = \Faker\Factory::create();
 
-        $limit = 40;
+        $limit = 100;
 
         for ($i = 0; $i < $limit; $i++) {
             DB::table('customers')->insert([

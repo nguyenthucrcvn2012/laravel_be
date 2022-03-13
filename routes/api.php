@@ -19,7 +19,6 @@ use App\Http\Controllers\API\CustomerController;
 */
 
 
-
 Route::post('login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {

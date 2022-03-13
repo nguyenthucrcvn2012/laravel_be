@@ -51,6 +51,7 @@ class AuthController extends Controller
                     'user' => $user,
                     'message' => 'Đăng nhập thành công'
                 ]);
+
             }
             else{
                 return response()->json([

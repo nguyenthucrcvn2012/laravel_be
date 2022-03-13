@@ -59,11 +59,10 @@ class UserController extends Controller
      */
     public function index()
     {
-        $arrayIDAdmin = [100];
-        $query = User::orderBy('id', 'DESC')->where('is_delete', 0)
-            ->whereNotIn('id', $arrayIDAdmin)->paginate(10);
-        UserResource::collection($query);
-        $users = $query;
+        $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
+        $users = User::orderBy('id', 'DESC')->where('is_delete', 0)
+            ->whereNotIn('email', $arrayIDAdmin)->paginate(10);
+//        UserResource::collection($query);
 
         if($users->count() > 0){
             return response()->json([
