@@ -7,8 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use Auth;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -97,39 +97,42 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
-            'email' => 'required|max:191|email|unique:App\Models\User,email',
-            'password' => 'required|min:8',
-            'password_confirm' => 'required|min:8|same:password',
-            'group_role' => 'required',
+            'email' => 'required|max:65|email|unique:App\Models\User,email',
+            'password' => 'required|min:5|max:15',
+            'password_confirm' => 'required|min:5|same:password|max:15',
+            'name' => 'required|max:254',
+            'group_role' => 'required|max:70',
         ]);
 
         if($validator->fails()){
+
             return response()->json([
                 'validation_errors' => $validator->messages()
             ]);
         }
         else{
-            $data = [
-                'group_role' => $request->group_role,
-                'name' => $request->name,
-                'email' =>  $request->email,
-                'password' => Hash::make($request->password)
-            ];
 
-            $query = User::create($data);
-            if($query) {
+            $data = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'group_role' => $request->group_role,
+                'is_active' => $request->is_active
+
+            ];
+            if(User::create($data)){
+
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Tạo tài khoản thành công!'
+                    'message' => 'Thêm mới thành công',
                 ]);
             }
-            else{
+            else {
+
                 return response()->json([
-                    'status' => 500,
-                    'message' => 'Lỗi vui lòng thử lại sau!'
+                    'status' => 401,
+                    'message' => 'Vui lòng thử lại sau!',
                 ]);
             }
         }
@@ -143,7 +146,21 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+        if($user) {
+
+            return response()->json([
+                'status' => 200,
+                'user' => $user
+            ]);
+        }
+        else {
+
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy dữ liệu'
+            ]);
+        }
     }
 
     /**
@@ -154,7 +171,21 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = User::find($id);
+        if($user) {
+
+            return response()->json([
+                'status' => 200,
+                'user' => $user
+            ]);
+        }
+        else {
+
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy dữ liệu'
+            ]);
+        }
     }
 
     /**
@@ -166,7 +197,53 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|max:65|email',
+            'name' => 'required|max:254',
+            'group_role' => 'required|max:70',
+        ]);
+
+        if($validator->fails()){
+
+            return response()->json([
+                'validation_errors' => $validator->messages()
+            ]);
+        }
+
+        $arrayEmail = User::whereNotIn('id', [$id])->pluck('email')->toArray();
+
+        if(in_array($request->email, $arrayEmail)){
+
+            return response()->json([
+                'validation_errors' => [
+                    'email' => 'The email has already been token'
+                ]
+            ]);
+        }
+        else{
+
+            $data = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'group_role' => $request->group_role,
+                'is_active' => $request->is_active
+            ];
+
+            if(User::where('id', $id)->update($data)){
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Cập nhật thảnh công',
+                ]);
+            }
+            else {
+
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Vui lòng thử lại sau!',
+                ]);
+            }
+        }
     }
 
     /**

@@ -11,6 +11,13 @@ class Product extends Model
     public $timestamps = true;
     protected $table = "products";
     protected $primaryKey = "product_id";
-    public $incrementing = false;
+    public $incrementing;
+    protected $fillable = [
+        'product_name',
+        'product_price',
+        'description',
+        'is_active',
+        'product_id',
+    ];
 
 }
