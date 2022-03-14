@@ -11,5 +11,12 @@ class Customer extends Model
     public $timestamps = true;
     protected $table = "customers";
     protected $primaryKey = "customer_id";
-
+    public $incrementing;
+    protected $fillable = [
+        'customer_name',
+        'email',
+        'tel_num',
+        'address',
+        'is_active',
+    ];
 }

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
@@ -95,7 +97,45 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|max:65|email|unique:App\Models\User,email',
+            'password' => 'required|min:8|max:15',
+            'password_confirm' => 'required|min:8|same:password|max:15',
+            'name' => 'required|max:254',
+            'group_role' => 'required|max:70',
+        ]);
+
+        if($validator->fails()){
+
+            return response()->json([
+                'validation_errors' => $validator->messages()
+            ]);
+        }
+        else{
+
+            $data = [
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'group_role' => $request->group_role,
+                'is_active' => $request->is_active
+
+            ];
+            if(User::create($data)){
+
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Thêm mới thảnh công',
+                ]);
+            }
+            else {
+
+                return response()->json([
+                    'status' => 401,
+                    'message' => 'Vui lòng thử lại sau!',
+                ]);
+            }
+        }
     }
 
     /**
@@ -106,7 +146,21 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find($id);
+        if($user) {
+
+            return response()->json([
+                'status' => 200,
+                'user' => $user
+            ]);
+        }
+        else {
+
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy dữ liệu'
+            ]);
+        }
     }
 
     /**

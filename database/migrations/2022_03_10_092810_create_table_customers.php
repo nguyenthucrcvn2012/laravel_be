@@ -19,7 +19,7 @@ class CreateTableCustomers extends Migration
             $table->string('email')->nullable();
             $table->string('tel_num', 14);
             $table->string('address');
-            $table->tinyInteger('is_sales')->default(1)->default(1);
+            $table->tinyInteger('is_sales')->default(1);
             $table->timestamps();
         });
     }
