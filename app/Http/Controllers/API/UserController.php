@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -95,7 +97,42 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255',
+            'email' => 'required|max:191|email|unique:App\Models\User,email',
+            'password' => 'required|min:8',
+            'password_confirm' => 'required|min:8|same:password',
+            'group_role' => 'required',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'validation_errors' => $validator->messages()
+            ]);
+        }
+        else{
+            $data = [
+                'group_role' => $request->group_role,
+                'name' => $request->name,
+                'email' =>  $request->email,
+                'password' => Hash::make($request->password)
+            ];
+
+            $query = User::create($data);
+            if($query) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Tạo tài khoản thành công!'
+                ]);
+            }
+            else{
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Lỗi vui lòng thử lại sau!'
+                ]);
+            }
+        }
     }
 
     /**

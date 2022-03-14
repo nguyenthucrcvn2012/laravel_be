@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -14,7 +15,18 @@ class ProductController extends Controller
      */
     public function index()
     {
-        //
+        $products = Product::orderBy('product_id', 'DESC')->where('is_delete', 0)->paginate(10);
+
+        if($products->count() > 0){
+            return response()->json([
+                'status' => 200,
+                'products' => $products
+            ]);
+        };
+        return response()->json([
+            'status' => 401,
+            'products' => [],
+        ]);
     }
 
     /**
@@ -80,6 +92,21 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $query = Product::where('product_id', $id)->update(['is_delete' => 1]);
+        if($query){
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Xóa thành công!'
+            ]);
+        }
+        else{
+
+            return response()->json([
+                'status' => 404,
+                'users' => [],
+                'message' => 'Lỗi thử lại sau!'
+            ]);
+        }
     }
 }

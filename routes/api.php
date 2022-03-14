@@ -31,6 +31,6 @@ Route::resource('users', UserController::class);
 Route::put('/users/active/{id}', [UserController::class, 'active'])->name('users.active');
 
 Route::resource('customers', CustomerController::class);
-//Route::resource('products', ProductController::class);
+Route::resource('products', ProductController::class);
 
 

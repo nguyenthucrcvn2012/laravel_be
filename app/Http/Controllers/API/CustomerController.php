@@ -16,7 +16,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::paginate(10);
+        $customers = Customer::orderBy('customer_id', 'DESC')->paginate(10);
 
         if($customers->count() > 0){
             return response()->json([
