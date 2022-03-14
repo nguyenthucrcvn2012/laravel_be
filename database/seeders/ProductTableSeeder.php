@@ -16,9 +16,8 @@ class ProductTableSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-        $limit = 100;
 
-        for ($i = 0; $i < $limit; $i++) {
+        for ($i = 0; $i < 98; $i++) {
             $name = $faker->name;
             if($i > 9){
                 $id = 'S0000000'.$i;

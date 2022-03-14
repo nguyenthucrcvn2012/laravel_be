@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use Cassandra\Date;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Product;
+use Illuminate\Support\Facades\Hash;
 
 class ProductController extends Controller
 {
@@ -16,7 +18,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('product_id', 'DESC')->paginate(10);
+        $products = Product::orderBy('created_at', 'DESC')->where('is_delete', 0)->paginate(10);
 
         if($products->count() > 0){
             return response()->json([
@@ -50,7 +52,7 @@ class ProductController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255',
-            'product_price' => 'required',
+            'product_price' => 'required|numeric|min:0',
             'is_sales' => 'required',
         ]);
 
@@ -60,28 +62,47 @@ class ProductController extends Controller
                 'validation_errors' => $validator->messages()
             ]);
         }
+
+        $data = [
+            'product_id' => getIdProduct($request->product_name),
+            'product_name' => $request->product_name,
+            'product_price' => $request->product_price,
+            'is_sales' => $request->is_sales,
+            'description' => $request->description
+        ];
+
+        if($request->hasFile('product_image')) {
+
+            $validator = Validator::make($request->all(), [
+                'product_image' => 'mimes:jpg,jpeg,png|max:1024',
+            ]);
+
+            if($validator->fails()){
+
+                return response()->json([
+                    'validation_errors' => $validator->messages()
+                ]);
+            }
+
+            $file = $request->file('product_image');
+            $file_name = rand(5,100).'-'.time().'.'.$file->getClientOriginalExtension();
+            $file->move('uploads/products/', $file_name);
+            $data = $data + array('product_image' => $file_name);
+        }
+
+        if(Product::create($data)){
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Thêm mới thành công',
+            ]);
+        }
         else {
-            $data = [
-                'product_id' => 14,
-                'product_name' => $request->product_name,
-                'product_price' => $request->product_price,
-                'is_sales' => $request->is_sales,
-                'description' => $request->description
-            ];
-            if(Product::create($data)){
 
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Thêm mới thành công',
-                ]);
-            }
-            else {
-
-                return response()->json([
-                    'status' => 401,
-                    'message' => 'Vui lòng thử lại sau!',
-                ]);
-            }
+            return response()->json([
+                'status' => 401,
+                'message' => 'Vui lòng thử lại sau!',
+            ]);
         }
     }
 
