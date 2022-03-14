@@ -148,15 +148,16 @@ class CustomerController extends Controller
                 ]);
             }
 
-//            $customers = Customer::whereNotIn('email', $request->email)->pluck('email')->toArray();
-//            if(in_array($request->email, $customers)){
-//
-//                return response()->json([
-//                    'validation_errors' => [
-//                        'email' => 'The email has already been taken.'
-//                    ]
-//                ]);
-//            }
+            $arrayTelNum = Customer::whereNotIn('customer_id', [$id])->pluck('tel_num')->toArray();
+
+            if(in_array($request->tel_num, $arrayTelNum)){
+
+                return response()->json([
+                    'validation_errors' => [
+                        'tel_num' => 'The phone has already been token'
+                    ]
+                ]);
+            }
 
             else{
 
