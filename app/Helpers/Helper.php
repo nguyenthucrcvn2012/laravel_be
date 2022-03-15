@@ -1,6 +1,10 @@
 <?php
 use App\Models\Product;
 
+/**
+ * @param $name
+ * @return string //newId Product
+ */
 function getIdProduct ($name) {
     $firstCharacter = strtoupper($name[0]);
     $newId = $firstCharacter.'000000001';
@@ -39,4 +43,34 @@ function getIdProduct ($name) {
     }
     return $newId;
 
+}
+
+/**
+ * @param $file
+ * @param $delimiter
+ * @return array|false //chuyển file csv thành mảng
+ */
+function convertCsvToArray ($file, $delimiter = ',') {
+    if (!file_exists($file) || !is_readable($file))
+        return false;
+
+//Bỏ index 0
+    $header = null;
+    $data = array();
+    if (($handle = fopen($file, 'r')) !== false)
+    {
+        while (($row = fgetcsv($handle, 1000, $delimiter)) !== false)
+        {
+            if (!$header)
+                $header = $row;
+            else
+                $data[] = array_combine($header, $row);
+        }
+        fclose($handle);
+    }
+
+    //Hoặc lấy cả index
+//    $data = array_map('str_getcsv', file($file));
+
+    return $data;
 }

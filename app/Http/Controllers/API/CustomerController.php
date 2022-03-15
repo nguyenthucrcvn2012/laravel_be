@@ -10,6 +10,38 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
+
+    public function importCsv(Request $request) {
+
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status' => 422,
+                'validation_errors' => $validator->messages()
+            ]);
+        }
+        else if($request->hasFile('file')){
+            $datas = convertCsvToArray($request->file('file'));
+            for($i = 0; $i < count($datas); $i++){
+
+                Customer::create($datas[$i]);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Import thành công',
+                'customers' => $datas
+            ]);
+        }
+        return response()->json([
+            'status' => 500,
+            'message' => 'Import thất bại'
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
