@@ -59,12 +59,12 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
-        $users = User::orderBy('id', 'DESC')->where('is_delete', 0)
+
+        $users = User::Name($request)->orderBy('id', 'DESC')->where('is_delete', 0)
             ->whereNotIn('email', $arrayIDAdmin)->paginate(10);
-//        UserResource::collection($query);
 
         if($users->count() > 0){
             return response()->json([
