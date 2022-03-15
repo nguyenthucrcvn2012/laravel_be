@@ -19,4 +19,40 @@ class Customer extends Model
         'address',
         'is_active',
     ];
+
+    public function scopeName($query, $request)
+    {
+        if ($request->has('customer_name') && $request->input('customer_name') != '') {
+            $query->where('customer_name', 'LIKE', '%'.$request->input('customer_name').'%')->get();
+        }
+
+        return $query;
+    }
+
+    public function scopeEmail($query, $request)
+    {
+        if ($request->has('email') && $request->input('email') != '') {
+            $query->where('email', 'LIKE', '%'.$request->input('email').'%')->get();
+        }
+
+        return $query;
+    }
+
+    public function scopeAddress($query, $request)
+    {
+        if ($request->has('address') && $request->input('address') != '') {
+            $query->where('address', 'LIKE', '%'.$request->input('address').'%')->get();
+        }
+
+        return $query;
+    }
+
+    public function scopeIsActive($query, $request)
+    {
+        if ($request->has('is_active') && $request->input('is_active') != '') {
+            $query->where('is_active', '=' , $request->input('is_active'))->get();
+        }
+
+        return $query;
+    }
 }

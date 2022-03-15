@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Scope;
 
 class User extends Authenticatable
 {
@@ -44,10 +45,37 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function scopeGroupRole($query, $request)
+    {
+        if ($request->has('group_role') && $request->input('group_role') != '') {
+            $query->where('group_role', '=', $request->input('group_role'))->get();
+        }
+
+        return $query;
+    }
+
     public function scopeName($query, $request)
     {
-        if ($request->has('name') && $request->name != '') {
-            $query->where('name', 'LIKE', '%Thức%');
+        if ($request->has('name') && $request->input('name') != '') {
+            $query->where('name', 'LIKE', '%'.$request->input('name').'%')->get();
+        }
+
+        return $query;
+    }
+
+    public function scopeEmail($query, $request)
+    {
+        if ($request->has('email') && $request->input('email') != '') {
+            $query->where('email', 'LIKE', '%'.$request->input('email').'%')->get();
+        }
+
+        return $query;
+    }
+
+    public function scopeIsActive($query, $request)
+    {
+        if ($request->has('is_active') && $request->input('is_active') != '') {
+            $query->where('is_active', '=' , $request->input('is_active'))->get();
         }
 
         return $query;

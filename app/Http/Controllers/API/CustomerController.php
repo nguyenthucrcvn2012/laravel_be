@@ -25,6 +25,37 @@ class CustomerController extends Controller
                 'customers' => $customers
             ]);
         };
+
+        return response()->json([
+            'status' => 401,
+            'customers' => [],
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request) {
+        $customers = Customer::Name($request)
+            ->Email($request)
+            ->IsActive($request)
+            ->Address($request)
+            ->orderBy('customer_id', 'DESC')
+            ->paginate(10);
+
+        $customers->appends(['customer_name' => $request->input('customer_name')]);
+        $customers->appends(['email' => $request->input('email')]);
+        $customers->appends(['address' => $request->input('address')]);
+        $customers->appends(['is_active' => $request->input('is_active')]);
+
+        if($customers->count() > 0){
+            return response()->json([
+                'status' => 200,
+                'customers' => $customers
+            ]);
+        };
+
         return response()->json([
             'status' => 401,
             'customers' => [],

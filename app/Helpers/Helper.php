@@ -2,7 +2,7 @@
 use App\Models\Product;
 
 function getIdProduct ($name) {
-    $firstCharacter = $name[0];
+    $firstCharacter = strtoupper($name[0]);
     $newId = $firstCharacter.'000000001';
     $newProduct = Product::orderBy('created_at', 'DESC')->first();
     if($newProduct) {

@@ -63,8 +63,19 @@ class UserController extends Controller
     {
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
 
-        $users = User::Name($request)->orderBy('id', 'DESC')->where('is_delete', 0)
-            ->whereNotIn('email', $arrayIDAdmin)->paginate(10);
+        $users = User::Name($request)
+            ->Email($request)
+            ->IsActive($request)
+            ->GroupRole($request)
+            ->orderBy('id', 'DESC')
+            ->where('is_delete', 0)
+            ->whereNotIn('email', $arrayIDAdmin)
+            ->paginate(10);
+
+        $users->appends(['name' => $request->input('name')]);
+        $users->appends(['email' => $request->input('email')]);
+        $users->appends(['group_role' => $request->input('group_role')]);
+        $users->appends(['is_active' => $request->input('is_active')]);
 
         if($users->count() > 0){
             return response()->json([
@@ -72,6 +83,43 @@ class UserController extends Controller
                 'users' => $users
             ]);
         };
+
+        return response()->json([
+            'status' => 401,
+            'users' => [],
+            'message' => 'Không tìm thấy dữ liệu'
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request) {
+
+        $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
+
+        $users = User::Name($request)
+            ->Email($request)
+            ->IsActive($request)
+            ->GroupRole($request)
+            ->orderBy('id', 'DESC')
+            ->where('is_delete', 0)
+            ->whereNotIn('email', $arrayIDAdmin)
+            ->paginate(10);
+
+        $users->appends(['name' => $request->input('name')]);
+        $users->appends(['email' => $request->input('email')]);
+        $users->appends(['group_role' => $request->input('group_role')]);
+        $users->appends(['is_active' => $request->input('is_active')]);
+
+        if($users->count() > 0){
+            return response()->json([
+                'status' => 200,
+                'users' => $users
+            ]);
+        };
+
         return response()->json([
             'status' => 401,
             'users' => [],

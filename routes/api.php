@@ -29,8 +29,11 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::resource('users', UserController::class);
 
 Route::put('/users/active/{id}', [UserController::class, 'active'])->name('users.active');
+Route::post('/users/search', [UserController::class, 'search'])->name('users.search');
 
 Route::resource('customers', CustomerController::class);
+Route::post('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
+
 Route::resource('products', ProductController::class);
 
 
