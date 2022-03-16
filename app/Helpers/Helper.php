@@ -1,6 +1,15 @@
 <?php
 use App\Models\Product;
 
+function checkEmail($email) {
+    if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 /**
  * @param $name
  * @return string //newId Product
@@ -54,23 +63,46 @@ function convertCsvToArray ($file, $delimiter = ',') {
     if (!file_exists($file) || !is_readable($file))
         return false;
 
+//    $allData = count(array_map('str_getcsv', file($file)));
+//    return count($allData[0]);
+//    $lenLineFirstData = count($allData[0]);
+//    $lenData = count($allData[0]);
+//
+//    if($lenData < 2 || $lenLineFirstData !== 4)
+//        return [false, 'Không có dữ liệu'];
+//
+//    if(
+//        $allData[0]['customer_name'] !== 'customer_name' ||
+//        $allData[1]['email'] !== 'email' ||
+//        $allData[2]['tel_num'] !== 'tel_num' ||
+//        $allData[3]['address'] !== 'address'
+//    ){
+//        return [false, 'Sai định dạng các trường (customer_name,email,tel_num,address)'];
+//
+//    }
+
 //Bỏ index 0
     $header = null;
     $data = array();
     if (($handle = fopen($file, 'r')) !== false)
     {
+        $i = 1;
         while (($row = fgetcsv($handle, 1000, $delimiter)) !== false)
         {
+            $len = count($row);
             if (!$header)
                 $header = $row;
+            else if($len !== 4)
+                return [false, 'Dữ diệu không đúng định dạng ở dòng '.$i];
             else
                 $data[] = array_combine($header, $row);
+            $i++;
         }
         fclose($handle);
     }
 
     //Hoặc lấy cả index
-//    $data = array_map('str_getcsv', file($file));
+
 
     return $data;
 }

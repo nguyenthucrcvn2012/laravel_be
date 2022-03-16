@@ -34,6 +34,7 @@ Route::post('/users/search', [UserController::class, 'search'])->name('users.sea
 Route::resource('customers', CustomerController::class);
 Route::post('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
 Route::post('/customers/import', [CustomerController::class, 'importCsv'])->name('customers.import.csv');
+Route::post('/customers/export', [CustomerController::class, 'exportCsv'])->name('customers.export.csv');
 
 Route::resource('products', ProductController::class);
 

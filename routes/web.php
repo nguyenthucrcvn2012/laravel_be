@@ -14,5 +14,6 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    dd(\Illuminate\Support\Facades\Hash::make('12345678'));
+    $array = [1,3,5,7,8];
+    dd(implode(",", $array));
 });
