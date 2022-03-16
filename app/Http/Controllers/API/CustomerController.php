@@ -13,6 +13,7 @@ class CustomerController extends Controller
 
     public function exportCsv(Request $request) {
 
+        //Kiem tra xem có filter khong
         if(
             $request->has('customer_name') && $request->input('customer_name') != '' ||
             $request->has('email') && $request->input('email') != '' ||
@@ -32,6 +33,8 @@ class CustomerController extends Controller
                 ->take(10)
                 ->get();
         }
+
+        //CSV
         $fileName = 'customer.csv';
         $headers = array(
             "Content-type"        => "text/csv",
@@ -46,10 +49,10 @@ class CustomerController extends Controller
             fputcsv($file, $columns);
 
             foreach ($customers as $customer) {
-                $row['customer_name']  = $customer->customer_name;
-                $row['email']    = $customer->email;
-                $row['tel_num']    = $customer->tel_num;
-                $row['address']  = $customer->address;
+                $row['customer_name']   = $customer->customer_name;
+                $row['email']           = $customer->email;
+                $row['tel_num']         = $customer->tel_num;
+                $row['address']         = $customer->address;
 
                 fputcsv($file, array($row['customer_name'], $row['email'], $row['tel_num'], $row['address']));
             }
@@ -57,7 +60,7 @@ class CustomerController extends Controller
             fclose($file);
         };
 
-        return response()->streamDownload($callback, 200, $headers);
+        return response()->stream($callback, 200, $headers);
     }
 
     /**
@@ -80,13 +83,7 @@ class CustomerController extends Controller
 
             $datasCsv = convertCsvToArray($request->file('file'));
 
-//            return response()->json([
-//                'status' => 200,
-//                'message' => '',
-//                'data' => $datasCsv
-//            ]);
-
-            if($datasCsv[0] == false) {
+            if($datasCsv[0] === false) {
 
                 return response()->json([
                     'status' => 401,
@@ -95,8 +92,9 @@ class CustomerController extends Controller
             }
 
             $datas = $datasCsv[1];
+
             $customers = Customer::all();
-            $tel_nums = $customers->pluck('tel_num')->toArray();
+            $emails = $customers->pluck('email')->toArray();
 
             $err_line_data = [];
             $err_line_exist = [];
@@ -104,26 +102,32 @@ class CustomerController extends Controller
             $len = count($datas);
 
             if($len > 0) {
+                $j = 0;
                 for($i = 0; $i < $len; $i++){
+                    if ($j === 0) {
+                        $j++;
+                        continue;
+                    }
                     if(
-                        in_array($datas[$i]['tel_num'], $tel_nums)
+                        in_array($datas[$i]['email'], $emails)
                     )
                     {
-                        array_push($err_line_exist, $i+2);
+                        array_push($err_line_exist, $i+1);
                     }
                     else if(
-                        strlen($datas[$i]['tel_num']) > 14  || $datas[$i]['tel_num'] == '' || strlen($datas[$i]['tel_num']) < 8  ||
-                        strlen($datas[$i]['address']) > 255 || $datas[$i]['address'] == '' ||
-                        strlen($datas[$i]['email']) > 255 || $datas[$i]['email'] == '' || checkEmail($datas[$i]['email']) == false ||
-                        strlen($datas[$i]['customer_name']) > 255 || $datas[$i]['customer_name'] == ''
+                        !isset($datas[$i]['tel_num']) || strlen($datas[$i]['tel_num']) > 14  || $datas[$i]['tel_num'] == '' || strlen($datas[$i]['tel_num']) < 8  ||
+                       !isset($datas[$i]['address']) || strlen($datas[$i]['address']) > 255 || $datas[$i]['address'] == '' ||
+                        !isset($datas[$i]['email']) ||  strlen($datas[$i]['email']) > 255 || $datas[$i]['email'] == '' || checkEmail($datas[$i]['email']) == false ||
+                        !isset($datas[$i]['customer_name']) ||  strlen($datas[$i]['customer_name']) > 255 || $datas[$i]['customer_name'] == ''
                     ) {
-                        array_push($err_line_data, $i+2);
+                        array_push($err_line_data, $i+1);
+
                     }
                     else{
-
                         Customer::create($datas[$i]);
                         $numSuccess++;
                     }
+
                 }
             }
             else{

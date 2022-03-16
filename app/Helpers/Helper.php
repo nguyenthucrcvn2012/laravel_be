@@ -96,21 +96,28 @@ function convertCsvToArray ($file, $delimiter = ',') {
                 $header = $row;
             if(
                 count($header) !== 4 ||
-                $header[0] != 'customer_name' ||
-                $header[1] != 'email' ||
-                $header[2] != 'tel_num' ||
-                $header[3] != 'address'
+                $header[0] !== 'customer_name' ||
+                $header[1] !== 'email' ||
+                $header[2] !== 'tel_num' ||
+                $header[3] !== 'address'
             ){
                 return [false, 'Header phải là (customer_name,email,tel_num,address)'];
             }
-
-            $data[] = array_combine($header, $row);
+            if(count($row) > 4) {
+                return [false, 'Lỗi dữ liệu ở dòng '.$i];
+            }
+                $data[] = array(
+                        $header[0] => isset($row[0]) ? $row[0] : '',
+                        $header[1] => isset($row[1]) ? $row[1] : '',
+                        $header[2] => isset($row[2]) ? $row[2] : '',
+                        $header[3] => isset($row[3]) ? $row[3] : ''
+                );
+//                );
+//            $data[] = array_combine($header, $row);
             $i++;
         }
         fclose($handle);
     }
-
-    //Hoặc lấy cả index
 
     return [true, $data];
 }
