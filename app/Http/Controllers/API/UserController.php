@@ -77,7 +77,7 @@ class UserController extends Controller
         $users->appends(['group_role' => $request->input('group_role')]);
         $users->appends(['is_active' => $request->input('is_active')]);
 
-        if($users->count() > 0){
+        if($users){
             return response()->json([
                 'status' => 200,
                 'users' => $users
@@ -87,7 +87,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 401,
             'users' => [],
-            'message' => 'Không tìm thấy dữ liệu'
+            'message' => 'Lỗi, thử lại sau'
         ]);
     }
 
@@ -113,7 +113,7 @@ class UserController extends Controller
         $users->appends(['group_role' => $request->input('group_role')]);
         $users->appends(['is_active' => $request->input('is_active')]);
 
-        if($users->count() > 0){
+        if($users){
             return response()->json([
                 'status' => 200,
                 'users' => $users
@@ -123,7 +123,7 @@ class UserController extends Controller
         return response()->json([
             'status' => 401,
             'users' => [],
-            'message' => 'Không tìm thấy dữ liệu'
+            'message' => 'Lỗi, thử lại sau'
         ]);
     }
 

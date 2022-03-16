@@ -78,19 +78,23 @@ class CustomerController extends Controller
                 ]);
             }
 
-            $datas = convertCsvToArray($request->file('file'));
+            $datasCsv = convertCsvToArray($request->file('file'));
+
 //            return response()->json([
 //                'status' => 200,
-//                'message' => 'File không đúng định dạng',
-//                'customers' => $datas
+//                'message' => '',
+//                'data' => $datasCsv
 //            ]);
 
-//            if(!$datas[0]) {
-//                return response()->json([
-//                    'status' => 401,
-//                    'message' => $datas[1]
-//                ]);
-//            }
+            if($datasCsv[0] == false) {
+
+                return response()->json([
+                    'status' => 401,
+                    'message' => $datasCsv[1]
+                ]);
+            }
+
+            $datas = $datasCsv[1];
             $customers = Customer::all();
             $tel_nums = $customers->pluck('tel_num')->toArray();
 
@@ -166,16 +170,18 @@ class CustomerController extends Controller
     {
         $customers = Customer::orderBy('customer_id', 'DESC')->paginate(10);
 
-        if($customers->count() > 0){
+        if($customers){
+
             return response()->json([
                 'status' => 200,
                 'customers' => $customers
             ]);
-        };
+        }
 
         return response()->json([
             'status' => 401,
             'customers' => [],
+            'message' => 'Không tìm thấy dữ liệu'
         ]);
     }
 
@@ -196,17 +202,18 @@ class CustomerController extends Controller
         $customers->appends(['address' => $request->input('address')]);
         $customers->appends(['is_active' => $request->input('is_active')]);
 
-        if($customers->count() > 0){
+        if($customers){
+
             return response()->json([
                 'status' => 200,
                 'customers' => $customers
             ]);
-        };
+        }
 
         return response()->json([
-            'status' => 401,
+            'status' => 500,
             'customers' => [],
-            'message' => 'Không tìm thấy dữ liệu'
+            'message' => 'Lỗi thử lại sau'
         ]);
     }
 

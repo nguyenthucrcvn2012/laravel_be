@@ -63,6 +63,8 @@ function convertCsvToArray ($file, $delimiter = ',') {
     if (!file_exists($file) || !is_readable($file))
         return false;
 
+
+
 //    $allData = count(array_map('str_getcsv', file($file)));
 //    return count($allData[0]);
 //    $lenLineFirstData = count($allData[0]);
@@ -86,16 +88,23 @@ function convertCsvToArray ($file, $delimiter = ',') {
     $data = array();
     if (($handle = fopen($file, 'r')) !== false)
     {
+
         $i = 1;
         while (($row = fgetcsv($handle, 1000, $delimiter)) !== false)
         {
-            $len = count($row);
             if (!$header)
                 $header = $row;
-            else if($len !== 4)
-                return [false, 'Dữ diệu không đúng định dạng ở dòng '.$i];
-            else
-                $data[] = array_combine($header, $row);
+            if(
+                count($header) !== 4 ||
+                $header[0] != 'customer_name' ||
+                $header[1] != 'email' ||
+                $header[2] != 'tel_num' ||
+                $header[3] != 'address'
+            ){
+                return [false, 'Header phải là (customer_name,email,tel_num,address)'];
+            }
+
+            $data[] = array_combine($header, $row);
             $i++;
         }
         fclose($handle);
@@ -103,6 +112,5 @@ function convertCsvToArray ($file, $delimiter = ',') {
 
     //Hoặc lấy cả index
 
-
-    return $data;
+    return [true, $data];
 }
