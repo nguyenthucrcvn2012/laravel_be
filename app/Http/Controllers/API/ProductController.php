@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Hash;
 
 class ProductController extends Controller
 {
+    private $modal;
+    public function __construct(Product $product) {
+        $this->modal = $product;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,7 +23,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('created_at', 'DESC')->where('is_delete', 0)->paginate(10);
+        $products =  $this->modal->orderBy('created_at', 'DESC')->where('is_delete', 0)->paginate(10);
 
         if($products->count() > 0){
             return response()->json([
@@ -90,7 +95,7 @@ class ProductController extends Controller
             $data = $data + array('product_image' => $file_name);
         }
 
-        if(Product::create($data)){
+        if($this->modal->create($data)){
 
             return response()->json([
                 'status' => 200,
@@ -138,7 +143,7 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
 
-        $product = Product::find($id);
+        $product = $this->modal->find($id);
         if($product) {
 
             $validator = Validator::make($request->all(), [
@@ -160,7 +165,7 @@ class ProductController extends Controller
                     'is_sales' => $request->is_sales,
                     'description' => $request->description
                 ];
-                if(Product::where('product_id', $product->product_id)->update($data)){
+                if($this->modal->where('product_id', $product->product_id)->update($data)){
 
                     return response()->json([
                         'status' => 200,
@@ -186,7 +191,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $query = Product::where('product_id', $id)->update(['is_delete' => 1]);
+        $query = $this->modal->where('product_id', $id)->update(['is_delete' => 1]);
         if($query){
 
             return response()->json([

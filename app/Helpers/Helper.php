@@ -59,65 +59,73 @@ function getIdProduct ($name) {
  * @param $delimiter
  * @return array|false //chuyển file csv thành mảng
  */
-function convertCsvToArray ($file, $delimiter = ',') {
+function convertCsvToArray ($file) {
     if (!file_exists($file) || !is_readable($file))
-        return false;
+        return [false, 'File không tồn tại.'];
 
+    $file_to_read = fopen(($file), 'r');
 
-
-//    $allData = count(array_map('str_getcsv', file($file)));
-//    return count($allData[0]);
-//    $lenLineFirstData = count($allData[0]);
-//    $lenData = count($allData[0]);
-//
-//    if($lenData < 2 || $lenLineFirstData !== 4)
-//        return [false, 'Không có dữ liệu'];
-//
-//    if(
-//        $allData[0]['customer_name'] !== 'customer_name' ||
-//        $allData[1]['email'] !== 'email' ||
-//        $allData[2]['tel_num'] !== 'tel_num' ||
-//        $allData[3]['address'] !== 'address'
-//    ){
-//        return [false, 'Sai định dạng các trường (customer_name,email,tel_num,address)'];
-//
-//    }
-
-//Bỏ index 0
-    $header = null;
-    $data = array();
-    if (($handle = fopen($file, 'r')) !== false)
-    {
-
-        $i = 1;
-        while (($row = fgetcsv($handle, 1000, $delimiter)) !== false)
-        {
-            if (!$header)
-                $header = $row;
+    $datas = [];
+    $i = 1;
+    while (!feof($file_to_read) ) {
+        $line = fgetcsv($file_to_read, 1000, ',');
+        if( $i == 1 ) {
             if(
-                count($header) !== 4 ||
-                $header[0] !== 'customer_name' ||
-                $header[1] !== 'email' ||
-                $header[2] !== 'tel_num' ||
-                $header[3] !== 'address'
-            ){
+                count($line)!== 4||
+                $line[0]!=='customer_name'||
+                $line[1]!=='email'||
+                $line[2]!=='tel_num'||
+                $line[3]!=='address'
+            ) {
                 return [false, 'Header phải là (customer_name,email,tel_num,address)'];
             }
-            if(count($row) > 4) {
-                return [false, 'Lỗi dữ liệu ở dòng '.$i];
-            }
-                $data[] = array(
-                        $header[0] => isset($row[0]) ? $row[0] : '',
-                        $header[1] => isset($row[1]) ? $row[1] : '',
-                        $header[2] => isset($row[2]) ? $row[2] : '',
-                        $header[3] => isset($row[3]) ? $row[3] : ''
-                );
-//                );
-//            $data[] = array_combine($header, $row);
-            $i++;
         }
-        fclose($handle);
+        else {
+            $datas[] = $line;
+        }
+        $i += 1;
     }
+    fclose($file_to_read);
 
-    return [true, $data];
+    if(count($datas) < 2) {
+        return [false, 'Không có dữ liệu'];
+    }
+    return [true, $datas];
+
+//
+//    $header = null;
+//    $data = array();
+//    if (($handle = fopen($file, 'r')) !== false)
+//    {
+//
+//        $i = 1;
+//        while (($row = fgetcsv($handle, 1000, ',')) !== false)
+//        {
+//            if (!$header)
+//                $header = $row;
+//
+//            if(
+//                count($header) !== 4
+//            ){
+//                return [false, 'Header phải là (customer_name,email,tel_num,address)'];
+//            }
+//            if(count($row) > 4) {
+//                return [false, 'Lỗi dữ liệu ở dòng '.$i];
+//            }
+//                $data[] = array(
+//                    $header[0] => isset($row[0]) ? $row[0] : '',
+//                    $header[1] => isset($row[1]) ? $row[1] : '',
+//                    $header[2] => isset($row[2]) ? $row[2] : '',
+//                    $header[3] => isset($row[3]) ? $row[3] : ''
+//                );
+////            $data[] = array_combine($header, $row);
+//            $i++;
+//        }
+//        fclose($handle);
+//    }
+//    else{
+//        return [false, 'Không đọc được file.'];
+//    }
+//
+//    return [true, $data];
 }
