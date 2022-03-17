@@ -12,6 +12,13 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
+
+    private $model;
+    public function __construct(User $user) {
+        $this->model = $user;
+    }
+
+
     /**
      * @param $id
      * @return \Illuminate\Http\JsonResponse
@@ -72,10 +79,10 @@ class UserController extends Controller
             ->whereNotIn('email', $arrayIDAdmin)
             ->paginate(10);
 
-        $users->appends(['name' => $request->input('name')]);
-        $users->appends(['email' => $request->input('email')]);
-        $users->appends(['group_role' => $request->input('group_role')]);
-        $users->appends(['is_active' => $request->input('is_active')]);
+//        $users->appends(['name' => $request->input('name')]);
+//        $users->appends(['email' => $request->input('email')]);
+//        $users->appends(['group_role' => $request->input('group_role')]);
+//        $users->appends(['is_active' => $request->input('is_active')]);
 
         if($users){
             return response()->json([
@@ -85,7 +92,7 @@ class UserController extends Controller
         };
 
         return response()->json([
-            'status' => 401,
+            'status' => 500,
             'users' => [],
             'message' => 'Lỗi, thử lại sau'
         ]);
@@ -99,7 +106,7 @@ class UserController extends Controller
 
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
 
-        $users = User::Name($request)
+        $users = $this->model->Name($request)
             ->Email($request)
             ->IsActive($request)
             ->GroupRole($request)
@@ -169,7 +176,7 @@ class UserController extends Controller
                 'is_active' => $request->is_active
 
             ];
-            if(User::create($data)){
+            if($this->model->create($data)){
 
                 return response()->json([
                     'status' => 200,
@@ -194,7 +201,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
+        $user = $this->model->find($id);
         if($user) {
 
             return response()->json([

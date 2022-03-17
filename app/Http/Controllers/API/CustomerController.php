@@ -11,6 +11,15 @@ use Illuminate\Support\Facades\Validator;
 class CustomerController extends Controller
 {
 
+    private $model;
+    public function __construct(Customer $customer) {
+        $this->model = $customer;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\StreamedResponse
+     */
     public function exportCsv(Request $request) {
 
         //Kiem tra xem có filter khong
@@ -124,7 +133,7 @@ class CustomerController extends Controller
 
                     }
                     else{
-                        Customer::create($datas[$i]);
+                        $this->model->create($datas[$i]);
                         $numSuccess++;
                     }
 
@@ -172,7 +181,7 @@ class CustomerController extends Controller
      */
     public function index()
     {
-        $customers = Customer::orderBy('customer_id', 'DESC')->paginate(10);
+        $customers = $this->model->orderBy('customer_id', 'DESC')->paginate(10);
 
         if($customers){
 
@@ -194,17 +203,17 @@ class CustomerController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function search(Request $request) {
-        $customers = Customer::Name($request)
+        $customers = $this->model->Name($request)
             ->Email($request)
             ->IsActive($request)
             ->Address($request)
             ->orderBy('customer_id', 'DESC')
             ->paginate(10);
 
-        $customers->appends(['customer_name' => $request->input('customer_name')]);
-        $customers->appends(['email' => $request->input('email')]);
-        $customers->appends(['address' => $request->input('address')]);
-        $customers->appends(['is_active' => $request->input('is_active')]);
+//        $customers->appends(['customer_name' => $request->input('customer_name')]);
+//        $customers->appends(['email' => $request->input('email')]);
+//        $customers->appends(['address' => $request->input('address')]);
+//        $customers->appends(['is_active' => $request->input('is_active')]);
 
         if($customers){
 
@@ -261,7 +270,7 @@ class CustomerController extends Controller
                 'tel_num' => $request->tel_num,
                 'is_active' => $request->is_active
             ];
-            if(Customer::create($data)){
+            if($this->model->create($data)){
 
                 return response()->json([
                     'status' => 200,
@@ -285,7 +294,7 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        $customer = Customer::find($id);
+        $customer = $this->model->find($id);
         if($customer) {
 
             return response()->json([
@@ -322,7 +331,7 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $customer = Customer::find($id);
+        $customer = $this->model->find($id);
         if($customer){
             $validator = Validator::make($request->all(), [
                 'email' => 'required|max:65|email',
@@ -338,13 +347,13 @@ class CustomerController extends Controller
                 ]);
             }
 
-            $arrayTelNum = Customer::whereNotIn('customer_id', [$id])->pluck('tel_num')->toArray();
+            $emails = $this->model->whereNotIn('customer_id', [$id])->pluck('email')->toArray();
 
-            if(in_array($request->tel_num, $arrayTelNum)){
+            if(in_array($request->email, $emails)){
 
                 return response()->json([
                     'validation_errors' => [
-                        'tel_num' => 'The phone has already been token'
+                        'email' => 'The phone has already been token'
                     ]
                 ]);
             }
@@ -358,7 +367,7 @@ class CustomerController extends Controller
                     'tel_num' => $request->tel_num,
                     'is_active' => $request->is_active
                 ];
-                if(Customer::where('customer_id', $id)->update($data)){
+                if($this->model->where('customer_id', $id)->update($data)){
 
                     return response()->json([
                         'status' => 200,
