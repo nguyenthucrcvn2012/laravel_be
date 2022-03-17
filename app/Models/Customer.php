@@ -15,8 +15,8 @@ class Customer extends Model
     public $incrementing;
     protected $fillable = [
         'customer_name',
-        'email',
         'tel_num',
+        'email',
         'address',
         'is_active',
     ];

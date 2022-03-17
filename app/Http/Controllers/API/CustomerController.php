@@ -63,7 +63,7 @@ class CustomerController extends Controller
                 $row['tel_num']         = $customer->tel_num;
                 $row['address']         = $customer->address;
 
-                fputcsv($file, array($row['customer_name'], $row['email'], $row['tel_num'], $row['address']));
+                fputcsv($file, array($row['customer_name'],$row['email'],$row['tel_num'],$row['address']));
             }
 
             fclose($file);
@@ -92,6 +92,12 @@ class CustomerController extends Controller
 
             $datasCsv = convertCsvToArray($request->file('file'));
 
+//            return response()->json([
+//                'status' => 200,
+//                'message' => $datasCsv[2],
+//                'customers' => $datasCsv[1]
+//            ]);
+
             if($datasCsv[0] === false) {
 
                 return response()->json([
@@ -102,55 +108,49 @@ class CustomerController extends Controller
 
             $datas = $datasCsv[1];
 
-            $customers = Customer::all();
+            $customers = $this->model->all();
             $emails = $customers->pluck('email')->toArray();
 
-            $err_line_data = [];
+            $err_line_error = [];
             $err_line_exist = [];
             $numSuccess = 0;
             $len = count($datas);
 
-            if($len > 0) {
-                $j = 0;
-                for($i = 0; $i < $len; $i++){
-                    if ($j === 0) {
-                        $j++;
-                        continue;
-                    }
-                    if(
-                        in_array($datas[$i]['email'], $emails)
-                    )
-                    {
-                        array_push($err_line_exist, $i+1);
-                    }
-                    else if(
-                        !isset($datas[$i]['tel_num']) || strlen($datas[$i]['tel_num']) > 14  || $datas[$i]['tel_num'] == '' || strlen($datas[$i]['tel_num']) < 8  ||
-                       !isset($datas[$i]['address']) || strlen($datas[$i]['address']) > 255 || $datas[$i]['address'] == '' ||
-                        !isset($datas[$i]['email']) ||  strlen($datas[$i]['email']) > 255 || $datas[$i]['email'] == '' || checkEmail($datas[$i]['email']) == false ||
-                        !isset($datas[$i]['customer_name']) ||  strlen($datas[$i]['customer_name']) > 255 || $datas[$i]['customer_name'] == ''
-                    ) {
-                        array_push($err_line_data, $i+1);
-
-                    }
-                    else{
-                        $this->model->create($datas[$i]);
-                        $numSuccess++;
-                    }
-
+            for($i = 0; $i < $len; $i++){
+                if(
+                    $datas[$i] == false ||
+                    $datas[$i] == null ||
+                    count($datas[$i]) !== 4 ||
+                    strlen($datas[$i][0]) > 255  || $datas[$i][0] == '' || // check name
+                    strlen($datas[$i][1]) > 255  || $datas[$i][1] == '' || checkEmail($datas[$i][1]) == false || // check email
+                    strlen($datas[$i][2]) > 14  || $datas[$i][2] == '' || strlen($datas[$i][2]) < 8 || // check tel
+                    strlen($datas[$i][3]) > 255  || $datas[$i][3] == ''  // check address
+                ) {
+                    array_push($err_line_error, $i+2);
+                }
+                elseif(
+                    in_array($datas[$i][1], $emails)
+                )
+                {
+                    array_push($err_line_exist, $i+2);
+                }
+                else{
+                    $newData = [
+                        'customer_name' => $datas[$i][0],
+                        'email' => $datas[$i][1],
+                        'tel_num' => $datas[$i][2],
+                        'address' => $datas[$i][3],
+                    ];
+                    $this->model->create($newData);
+                    $numSuccess++;
                 }
             }
-            else{
 
-                return response()->json([
-                    'status' => 401,
-                    'message' => 'Không có dữ liệu.'
-                ]);
-            }
             $message = '';
             $lenLineExist = count($err_line_exist);
-            $lenLineError = count($err_line_data);
+            $lenLineError = count($err_line_error);
             $strLineExist = implode(",", $err_line_exist);
-            $strLineError = implode(",", $err_line_data);
+            $strLineError = implode(",", $err_line_error);
             if($lenLineExist > 0) {
 
                 $message.= 'Dữ liệu đã tồn tại trong hệ thống ở dòng '.$strLineExist .'. ';
@@ -168,9 +168,99 @@ class CustomerController extends Controller
             ]);
         }
 
+
+//        if($request->hasFile('file')){
+//
+//            $ext = $request->file('file')->getClientOriginalExtension();
+//
+//            if($ext !== 'csv') {
+//                return response()->json([
+//                    'status' => 422,
+//                    'message' => 'File không đúng định dạng'
+//                ]);
+//            }
+//
+//            $datasCsv = convertCsvToArray($request->file('file'));
+//
+//            if($datasCsv[0] === false) {
+//
+//                return response()->json([
+//                    'status' => 401,
+//                    'message' => $datasCsv[1]
+//                ]);
+//            }
+//
+//            $datas = $datasCsv[1];
+//
+//            $customers = Customer::all();
+//            $emails = $customers->pluck('email')->toArray();
+//
+//            $err_line_data = [];
+//            $err_line_exist = [];
+//            $numSuccess = 0;
+//            $len = count($datas);
+//
+//            if($len > 0) {
+//                $j = 0;
+//                for($i = 0; $i < $len; $i++){
+//                    if ($j === 0) {
+//                        $j++;
+//                        continue;
+//                    }
+//                    if(
+//                        in_array($datas[$i]['email'], $emails)
+//                    )
+//                    {
+//                        array_push($err_line_exist, $i+1);
+//                    }
+//                    else if(
+//                        !isset($datas[$i]['tel_num']) || strlen($datas[$i]['tel_num']) > 14  || $datas[$i]['tel_num'] == '' || strlen($datas[$i]['tel_num']) < 8  ||
+//                        !isset($datas[$i]['address']) || strlen($datas[$i]['address']) > 255 || $datas[$i]['address'] == '' ||
+//                        !isset($datas[$i]['email']) ||  strlen($datas[$i]['email']) > 255 || $datas[$i]['email'] == '' || checkEmail($datas[$i]['email']) == false ||
+//                        !isset($datas[$i]['customer_name']) ||  strlen($datas[$i]['customer_name']) > 255 || $datas[$i]['customer_name'] == ''
+//                    ) {
+//                        array_push($err_line_data, $i+1);
+//
+//                    }
+//                    else{
+//                        Customer::create($datas[$i]);
+//                        $numSuccess++;
+//                    }
+//
+//                }
+//            }
+//            else{
+//
+//                return response()->json([
+//                    'status' => 401,
+//                    'message' => 'Không có dữ liệu.'
+//                ]);
+//            }
+//            $message = '';
+//            $lenLineExist = count($err_line_exist);
+//            $lenLineError = count($err_line_data);
+//            $strLineExist = implode(",", $err_line_exist);
+//            $strLineError = implode(",", $err_line_data);
+//            if($lenLineExist > 0) {
+//
+//                $message.= 'Dữ liệu đã tồn tại trong hệ thống ở dòng '.$strLineExist .'. ';
+//            }
+//            if($lenLineError) {
+//
+//                $message.= 'Dữ liệu dòng '.$strLineError.' không hợp lệ. ';
+//            }
+//            $message.= 'Lưu thành công '.$numSuccess.' khách hàng.';
+//
+//            return response()->json([
+//                'status' => 200,
+//                'message' => $message,
+//                'customers' => $datas,
+//            ]);
+//        }
+
         return response()->json([
-            'status' => 500,
-            'message' => 'Import thất bại'
+            'status' => 401,
+            'message' => 'Không thấy file'
         ]);
     }
 
@@ -192,9 +282,9 @@ class CustomerController extends Controller
         }
 
         return response()->json([
-            'status' => 401,
+            'status' => 500,
             'customers' => [],
-            'message' => 'Không tìm thấy dữ liệu'
+            'message' => 'Lỗi, thử lại sau!'
         ]);
     }
 
@@ -347,7 +437,7 @@ class CustomerController extends Controller
                 ]);
             }
 
-            $emails = $this->model->whereNotIn('customer_id', [$id])->pluck('email')->toArray();
+            $arrayTelNum = $this->model->whereNotIn('customer_id', [$id])->pluck('tel_num')->toArray();
 
             if(in_array($request->email, $emails)){
 
