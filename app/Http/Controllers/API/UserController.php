@@ -24,7 +24,7 @@ class UserController extends Controller
      */
     public function active($id) {
 
-        $user = $this->modal->find($id);
+        $user = $this->model->find($id);
         if($user){
             $active = 0;
             if($user->is_active == 0){
@@ -32,7 +32,7 @@ class UserController extends Controller
                 $active = 1;
             }
 
-            $query = $this->modal->where('id', $id)->update(['is_active' => $active]);
+            $query = $this->model->where('id', $id)->update(['is_active' => $active]);
             if($query){
 
                 return response()->json([
@@ -69,7 +69,7 @@ class UserController extends Controller
     {
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
 
-        $users = $this->modal->Name($request)
+        $users = $this->model->Name($request)
             ->Email($request)
             ->IsActive($request)
             ->GroupRole($request)
@@ -105,7 +105,7 @@ class UserController extends Controller
 
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
 
-        $users = User::Name($request)
+        $users = $this->model->Name($request)
             ->Email($request)
             ->IsActive($request)
             ->GroupRole($request)
@@ -175,7 +175,7 @@ class UserController extends Controller
                 'is_active' => $request->is_active
 
             ];
-            if(User::create($data)){
+            if($this->model->create($data)){
 
                 return response()->json([
                     'status' => 200,
@@ -200,7 +200,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
+        $user = $this->model->find($id);
         if($user) {
 
             return response()->json([
@@ -225,7 +225,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        $user = $this->modal->find($id);
+        $user = $this->model->find($id);
         if($user) {
 
             return response()->json([
@@ -264,7 +264,7 @@ class UserController extends Controller
             ]);
         }
 
-        $arrayEmail = $this->modal->whereNotIn('id', [$id])->pluck('email')->toArray();
+        $arrayEmail = $this->model->whereNotIn('id', [$id])->pluck('email')->toArray();
 
         if(in_array($request->email, $arrayEmail)){
 
@@ -283,7 +283,7 @@ class UserController extends Controller
                 'is_active' => $request->is_active
             ];
 
-            if($this->modal->where('id', $id)->update($data)){
+            if($this->model->where('id', $id)->update($data)){
 
                 return response()->json([
                     'status' => 200,
@@ -308,7 +308,7 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        $query = $this->modal->where('id', $id)->update(['is_delete' => 1]);
+        $query = $this->model->where('id', $id)->update(['is_delete' => 1]);
         if($query){
 
             return response()->json([

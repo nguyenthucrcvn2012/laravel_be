@@ -3,14 +3,49 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Cassandra\Date;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Product;
-use Illuminate\Support\Facades\Hash;
 
 class ProductController extends Controller
 {
+
+    private $model;
+    public function __construct(Product $product) {
+        $this->model = $product;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request) {
+
+        $products = $this->model
+//            ->ProductName($request)
+//            ->ProductPrice($request)
+//            ->IsSales($request)
+            ->orderBy('product_id', 'DESC')
+            ->where('is_delete', 0)
+            ->paginate(10);
+
+//        $products->appends(['product_name' => $request->input('product_name')]);
+//        $products->appends(['is_sales' => $request->input('is_sales')]);
+
+        if($products){
+
+            return response()->json([
+                'status' => 200,
+                'products' => $products
+            ]);
+        }
+
+        return response()->json([
+            'status' => 500,
+            'message' => 'Lỗi thử lại sau'
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -18,7 +53,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::orderBy('created_at', 'DESC')->where('is_delete', 0)->paginate(10);
+        $products = $this->model->orderBy('created_at', 'DESC')->where('is_delete', 0)->paginate(10);
 
         if($products->count() > 0){
             return response()->json([
@@ -90,7 +125,7 @@ class ProductController extends Controller
             $data = $data + array('product_image' => $file_name);
         }
 
-        if($this->modal->create($data)){
+        if(Product::create($data)){
 
             return response()->json([
                 'status' => 200,
@@ -138,7 +173,7 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
 
-        $product = $this->modal->find($id);
+        $product = Product::find($id);
         if($product) {
 
             $validator = Validator::make($request->all(), [
@@ -160,7 +195,7 @@ class ProductController extends Controller
                     'is_sales' => $request->is_sales,
                     'description' => $request->description
                 ];
-                if($this->modal->where('product_id', $product->product_id)->update($data)){
+                if(Product::where('product_id', $product->product_id)->update($data)){
 
                     return response()->json([
                         'status' => 200,
@@ -186,7 +221,7 @@ class ProductController extends Controller
      */
     public function destroy($id)
     {
-        $query = Product::where('product_id', $id)->update(['is_delete' => 1]);
+        $query = $this->model->where('product_id', $id)->update(['is_delete' => 1]);
         if($query){
 
             return response()->json([

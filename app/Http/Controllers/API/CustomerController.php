@@ -437,7 +437,7 @@ class CustomerController extends Controller
                 ]);
             }
 
-            $arrayTelNum = $this->model->whereNotIn('customer_id', [$id])->pluck('tel_num')->toArray();
+            $emails = $this->model->whereNotIn('customer_id', [$id])->pluck('email')->toArray();
 
             if(in_array($request->email, $emails)){
 
