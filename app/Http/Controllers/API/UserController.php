@@ -18,7 +18,6 @@ class UserController extends Controller
         $this->model = $user;
     }
 
-
     /**
      * @param $id
      * @return \Illuminate\Http\JsonResponse
