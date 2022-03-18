@@ -16,15 +16,9 @@ class ProductTableSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-
         for ($i = 0; $i < 98; $i++) {
             $name = $faker->name;
-            if($i > 9){
-                $id = 'S0000000'.$i;
-            }
-            else{
-                $id = 'S00000000'.$i;
-            }
+            $id = getIdProduct($name);
 
             DB::table('products')->insert([
                 'product_id' => $id,

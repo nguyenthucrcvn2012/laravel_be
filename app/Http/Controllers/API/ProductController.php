@@ -10,7 +10,7 @@ use App\Models\Product;
 class ProductController extends Controller
 {
 
-    private $model;
+    public $model;
     public function __construct(Product $product) {
         $this->model = $product;
     }
@@ -21,11 +21,10 @@ class ProductController extends Controller
      */
     public function search(Request $request) {
 
-        $products = $this->model
-//            ->ProductName($request)
-//            ->ProductPrice($request)
-//            ->IsSales($request)
-            ->orderBy('product_id', 'DESC')
+        $products = $this->model->ProductName($request)
+            ->ProductPrice($request)
+            ->IsSales($request)
+            ->orderBy('created_at', 'DESC')
             ->where('is_delete', 0)
             ->paginate(10);
 
@@ -53,7 +52,10 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = $this->model->orderBy('created_at', 'DESC')->where('is_delete', 0)->paginate(10);
+        $products = $this->model
+            ->where('is_delete', 0)
+            ->orderBy('created_at', 'DESC')
+            ->paginate(10);
 
         if($products->count() > 0){
             return response()->json([
@@ -86,8 +88,8 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_name' => 'required|max:255',
-            'product_price' => 'required|numeric|min:0',
+            'product_name' => 'required|max:255|min:6',
+            'product_price' => 'required|numeric|min:0|digits_between:1,11',
             'is_sales' => 'required',
         ]);
 
@@ -109,8 +111,9 @@ class ProductController extends Controller
         if($request->hasFile('product_image')) {
 
             $validator = Validator::make($request->all(), [
-                'product_image' => 'mimes:jpg,jpeg,png|max:1024',
+                'product_image' => 'image|mimes:jpg,jpeg,png|max:2048',
             ]);
+//            |dimensions:max_width=1024,max_height=1024
 
             if($validator->fails()){
 
@@ -121,7 +124,7 @@ class ProductController extends Controller
 
             $file = $request->file('product_image');
             $file_name = rand(5,100).'-'.time().'.'.$file->getClientOriginalExtension();
-            $file->move('uploads/products/', $file_name);
+            $request->file('product_image')->move('uploads/products/', $file_name);
             $data = $data + array('product_image' => $file_name);
         }
 
@@ -135,7 +138,7 @@ class ProductController extends Controller
         else {
 
             return response()->json([
-                'status' => 401,
+                'status' => 500,
                 'message' => 'Vui lòng thử lại sau!',
             ]);
         }
@@ -160,7 +163,21 @@ class ProductController extends Controller
      */
     public function edit($id)
     {
-        //
+        $product = $this->model->find($id);
+        if($product) {
+
+            return response()->json([
+                'status' => 200,
+                'product' => $product
+            ]);
+        }
+        else {
+
+            return response()->json([
+                'status' => 404,
+                'message' => 'Không tìm thấy dữ liệu'
+            ]);
+        }
     }
 
     /**
@@ -173,29 +190,62 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
 
-        $product = Product::find($id);
-        if($product) {
-
-            $validator = Validator::make($request->all(), [
-                'product_name' => 'required|max:255',
-                'product_price' => 'required',
-                'is_sales' => 'required',
+        if($request->hasFile('product_image')) {
+            return response()->json([
+                'status' => 200,
+                'message' => 'Có hình',
             ]);
+        }
 
-            if($validator->fails()){
+        $validator = Validator::make($request->all(), [
+            'product_name' => 'required|max:255|min:6',
+            'product_price' => 'required|numeric|min:0|digits_between:1,11',
+            'is_sales' => 'required'
+        ]);
 
-                return response()->json([
-                    'validation_errors' => $validator->messages()
-                ]);
-            }
-            else {
+        if($validator->fails()){
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+                'product_name' => $request->product_name
+            ]);
+        }
+//        else {
+            $product = $this->model->find($id);
+            if($product){
                 $data = [
-                    'product_name' => $request->product_name,
-                    'product_price' => $request->product_price,
-                    'is_sales' => $request->is_sales,
-                    'description' => $request->description
+                    'product_name' => $request->input('product_name'),
+                    'product_price' => $request->input('product_price'),
+                    'is_sales' => $request->input('is_sales'),
+                    'description' => $request->input('description')
                 ];
-                if(Product::where('product_id', $product->product_id)->update($data)){
+//                if($request->hasFile('product_image')) {
+//                    return response()->json([
+//                        'status' => 200,
+//                        'message' => 'Có hình',
+//                    ]);
+//
+//                    $validator = Validator::make($request->all(), [
+//                        'product_image' => 'image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=1024,max_height=1024',
+//                    ]);
+//
+//                    if($validator->fails()){
+//
+//                        return response()->json([
+//                            'validation_errors' => $validator->messages()
+//                        ]);
+//                    }
+//
+//                    $file = $request->file('product_image');
+//                    $file_name = rand(5,100).'-'.time().'.'.$file->getClientOriginalExtension();
+//                    $file->move('uploads/products/', $file_name);
+//                    $data = $data + array('product_image' => $file_name);
+////
+//                    //xóa hình cũ
+//                    if (File::exists(public_path() . "/uploads/products/" . $product->product_image)) {
+//                        File::delete(public_path() . "/uploads/products/" . $product->product_image);
+//                    }
+//                }
+                if(Product::where('product_id', $id)->update($data)){
 
                     return response()->json([
                         'status' => 200,
@@ -203,14 +253,21 @@ class ProductController extends Controller
                     ]);
                 }
                 else {
-
                     return response()->json([
-                        'status' => 401,
+                        'status' => 500,
                         'message' => 'Vui lòng thử lại sau!',
                     ]);
                 }
             }
-        }
+            return response()->json([
+                'status' => 401,
+                'message' => 'Không tìm thây sản phẩm!',
+            ]);
+//        }
+
+
+
+
     }
 
     /**

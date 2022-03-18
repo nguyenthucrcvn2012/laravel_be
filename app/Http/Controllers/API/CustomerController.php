@@ -315,7 +315,6 @@ class CustomerController extends Controller
 
         return response()->json([
             'status' => 500,
-            'customers' => [],
             'message' => 'Lỗi thử lại sau'
         ]);
     }
