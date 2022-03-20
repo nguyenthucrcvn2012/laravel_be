@@ -5,10 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Http\Resources\UserResource;
 use Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Resources\UserResource;
 
 class UserController extends Controller
 {
@@ -134,16 +134,6 @@ class UserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -199,31 +189,6 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        $user = $this->model->find($id);
-        if($user) {
-
-            return response()->json([
-                'status' => 200,
-                'user' => $user
-            ]);
-        }
-        else {
-
-            return response()->json([
-                'status' => 404,
-                'message' => 'Không tìm thấy dữ liệu'
-            ]);
-        }
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
     {
         $user = $this->model->find($id);
         if($user) {
@@ -306,7 +271,7 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete($id)
     {
         $query = $this->model->where('id', $id)->update(['is_delete' => 1]);
         if($query){

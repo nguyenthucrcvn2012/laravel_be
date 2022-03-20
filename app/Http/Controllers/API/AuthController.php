@@ -12,10 +12,12 @@ use Auth;
 class AuthController extends Controller
 {
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function logout(){
 
         auth()->user()->tokens()->delete();
-
         return response()->json([
             'status' => 200,
             'message' => 'Đăng xuất thành công'

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Product;
+use File;
 
 class ProductController extends Controller
 {
@@ -26,10 +27,7 @@ class ProductController extends Controller
             ->IsSales($request)
             ->orderBy('created_at', 'DESC')
             ->where('is_delete', 0)
-            ->paginate(10);
-
-//        $products->appends(['product_name' => $request->input('product_name')]);
-//        $products->appends(['is_sales' => $request->input('is_sales')]);
+            ->paginate(2);
 
         if($products){
 
@@ -55,7 +53,7 @@ class ProductController extends Controller
         $products = $this->model
             ->where('is_delete', 0)
             ->orderBy('created_at', 'DESC')
-            ->paginate(10);
+            ->paginate(2);
 
         if($products->count() > 0){
             return response()->json([
@@ -67,16 +65,6 @@ class ProductController extends Controller
             'status' => 401,
             'products' => [],
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -111,7 +99,7 @@ class ProductController extends Controller
         if($request->hasFile('product_image')) {
 
             $validator = Validator::make($request->all(), [
-                'product_image' => 'image|mimes:jpg,jpeg,png|max:2048',
+                'product_image' => 'image|mimes:jpg,jpeg,png|max:4000',
             ]);
 //            |dimensions:max_width=1024,max_height=1024
 
@@ -152,17 +140,6 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
         $product = $this->model->find($id);
         if($product) {
 
@@ -181,92 +158,69 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse|void
      */
-    public function update(Request $request, $id)
-    {
-
-        if($request->hasFile('product_image')) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'Có hình',
-            ]);
-        }
-
+    public function update(Request $request, $id) {
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
             'product_price' => 'required|numeric|min:0|digits_between:1,11',
-            'is_sales' => 'required'
+            'is_sales' => 'required',
         ]);
 
         if($validator->fails()){
+
             return response()->json([
-                'validation_errors' => $validator->messages(),
-                'product_name' => $request->product_name
+                'validation_errors' => $validator->messages()
             ]);
         }
-//        else {
-            $product = $this->model->find($id);
-            if($product){
-                $data = [
-                    'product_name' => $request->input('product_name'),
-                    'product_price' => $request->input('product_price'),
-                    'is_sales' => $request->input('is_sales'),
-                    'description' => $request->input('description')
-                ];
-//                if($request->hasFile('product_image')) {
-//                    return response()->json([
-//                        'status' => 200,
-//                        'message' => 'Có hình',
-//                    ]);
-//
-//                    $validator = Validator::make($request->all(), [
-//                        'product_image' => 'image|mimes:jpg,jpeg,png|max:2048|dimensions:max_width=1024,max_height=1024',
-//                    ]);
-//
-//                    if($validator->fails()){
-//
-//                        return response()->json([
-//                            'validation_errors' => $validator->messages()
-//                        ]);
-//                    }
-//
-//                    $file = $request->file('product_image');
-//                    $file_name = rand(5,100).'-'.time().'.'.$file->getClientOriginalExtension();
-//                    $file->move('uploads/products/', $file_name);
-//                    $data = $data + array('product_image' => $file_name);
-////
-//                    //xóa hình cũ
-//                    if (File::exists(public_path() . "/uploads/products/" . $product->product_image)) {
-//                        File::delete(public_path() . "/uploads/products/" . $product->product_image);
-//                    }
-//                }
-                if(Product::where('product_id', $id)->update($data)){
+
+        $product = $this->model->find($id);
+
+        if($product) {
+            $data = [
+                'product_name' => $request->input('product_name'),
+                'product_price' => $request->input('product_price'),
+                'is_sales' => $request->input('is_sales'),
+                'description' => $request->input('description')
+            ];
+            if($request->file('product_image')) {
+                $validator = Validator::make($request->all(), [
+                    'product_image' => 'image|mimes:jpg,jpeg,png|max:20480',
+                ]);
+                if ($validator->fails()) {
 
                     return response()->json([
-                        'status' => 200,
-                        'message' => 'Cập nhật thành công',
+                        'validation_errors' => $validator->messages()
                     ]);
                 }
-                else {
-                    return response()->json([
-                        'status' => 500,
-                        'message' => 'Vui lòng thử lại sau!',
-                    ]);
+                //xóa hình cũ
+                if (File::exists($product->product_image)) {
+                    File::delete($product->product_image);
                 }
+
+                $file = $request->file('product_image');
+                $fileName = rand(5,100).'-'.time().'.'.$file->getClientOriginalExtension();
+                $file->move('uploads/products/', $fileName);
+                $data = $data + array('product_image' => $fileName);
             }
-            return response()->json([
-                'status' => 401,
-                'message' => 'Không tìm thây sản phẩm!',
-            ]);
-//        }
 
+            if(Product::where('product_id', $id)->update($data)){
 
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Cập nhật thành công',
+                ]);
+            }
+            else {
 
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Vui lòng thử lại sau!',
+                ]);
+            }
+        }
 
     }
 
@@ -276,7 +230,7 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete($id)
     {
         $query = $this->model->where('product_id', $id)->update(['is_delete' => 1]);
         if($query){
