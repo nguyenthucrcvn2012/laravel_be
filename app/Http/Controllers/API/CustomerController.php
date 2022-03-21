@@ -22,7 +22,7 @@ class CustomerController extends Controller
      */
     public function exportCsv(Request $request) {
 
-        //Kiem tra xem có filter khong
+        //Kiem tra xem có tìm kiếm khong
         if(
             $request->has('customer_name') && $request->input('customer_name') != '' ||
             $request->has('email') && $request->input('email') != '' ||
@@ -91,12 +91,6 @@ class CustomerController extends Controller
             }
 
             $datasCsv = convertCsvToArray($request->file('file'));
-
-//            return response()->json([
-//                'status' => 200,
-//                'message' => $datasCsv[2],
-//                'customers' => $datasCsv[1]
-//            ]);
 
             if($datasCsv[0] === false) {
 
@@ -300,11 +294,6 @@ class CustomerController extends Controller
             ->orderBy('customer_id', 'DESC')
             ->paginate(10);
 
-//        $customers->appends(['customer_name' => $request->input('customer_name')]);
-//        $customers->appends(['email' => $request->input('email')]);
-//        $customers->appends(['address' => $request->input('address')]);
-//        $customers->appends(['is_active' => $request->input('is_active')]);
-
         if($customers){
 
             return response()->json([
@@ -317,16 +306,6 @@ class CustomerController extends Controller
             'status' => 500,
             'message' => 'Lỗi thử lại sau'
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -401,17 +380,6 @@ class CustomerController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -477,16 +445,5 @@ class CustomerController extends Controller
             'message' => 'Không tìm thấy dữ liệu!',
         ]);
 
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
     }
 }

@@ -1,6 +1,10 @@
 <?php
 use App\Models\Product;
 
+/**
+ * @param $email
+ * @return bool
+ */
 function checkEmail($email) {
     if(filter_var($email, FILTER_VALIDATE_EMAIL)) {
         return true;
@@ -92,7 +96,7 @@ function convertCsvToArray ($file) {
     }
     return [true, $datas];
 
-//
+
 //    $header = null;
 //    $data = array();
 //    if (($handle = fopen($file, 'r')) !== false)
