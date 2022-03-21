@@ -189,7 +189,6 @@ class ProductController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         if($request->hasFile('product_image')) {
             return response()->json([
                 'status' => 200,
