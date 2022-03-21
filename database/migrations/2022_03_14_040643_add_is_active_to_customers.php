@@ -15,7 +15,7 @@ class AddIsActiveToCustomers extends Migration
     {
         Schema::table('customers', function (Blueprint $table) {
             $table->tinyInteger('is_active')->default(1)
-                ->comment('0: Không hoạt động , 1: hoạt động')->after('is_sales');
+                ->comment('0: Không hoạt động , 1: hoạt động')->after('tel_num');
         });
     }
 
