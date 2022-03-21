@@ -27,7 +27,7 @@ class ProductController extends Controller
             ->IsSales($request)
             ->orderBy('created_at', 'DESC')
             ->where('is_delete', 0)
-            ->paginate(2);
+            ->paginate(10);
 
         if($products){
 
@@ -53,7 +53,7 @@ class ProductController extends Controller
         $products = $this->model
             ->where('is_delete', 0)
             ->orderBy('created_at', 'DESC')
-            ->paginate(2);
+            ->paginate(10);
 
         if($products->count() > 0){
             return response()->json([
@@ -150,17 +150,6 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
         $product = $this->model->find($id);
         if($product) {
 
@@ -176,6 +165,17 @@ class ProductController extends Controller
                 'message' => 'Không tìm thấy dữ liệu'
             ]);
         }
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+
     }
 
     /**

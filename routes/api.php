@@ -12,6 +12,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 });
+
 Route::prefix('users')->group(function () {
     Route::get('/', [UserController::class, 'index'])->name('users.index');
     Route::get('/{id}', [UserController::class, 'show'])->name('users.show');
@@ -22,15 +23,12 @@ Route::prefix('users')->group(function () {
     Route::post('/store', [UserController::class, 'store'])->name('users.store');
 });
 
-Route::prefix('products')->group(function () {
-    Route::get('/', [ProductController::class, 'index'])->name('users.index');
-    Route::get('/{id}', [ProductController::class, 'show'])->name('users.show');
-    Route::post('/{id}/delete', [ProductController::class, 'delete'])->name('users.delete');
-    Route::post('/{id}/update', [ProductController::class, 'update'])->name('users.update');
-    Route::post('/store', [ProductController::class, 'store'])->name('users.store');
-    Route::post('/search', [ProductController::class, 'search'])->name('products.search');
-});
-
+Route::get('products/', [ProductController::class, 'index'])->name('users.index');
+Route::get('products/{id}', [ProductController::class, 'show'])->name('users.show');
+Route::post('products/{id}/delete', [ProductController::class, 'delete'])->name('users.delete');
+Route::post('products/{id}/update', [ProductController::class, 'update'])->name('users.update');
+Route::post('products/store', [ProductController::class, 'store'])->name('users.store');
+Route::post('products/search', [ProductController::class, 'search'])->name('products.search');
 
 Route::get('/customers', [UserController::class, 'index'])->name('users.index');
 Route::get('/customers/{id}', [CustomerController::class, 'show'])->name('customers.show');
