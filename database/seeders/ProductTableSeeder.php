@@ -29,7 +29,7 @@ class ProductTableSeeder extends Seeder
                 'created_at' =>  \Carbon\Carbon::now()
             ]);
 
-            sleep(0.5);
+            sleep(1);
         }
     }
 }
