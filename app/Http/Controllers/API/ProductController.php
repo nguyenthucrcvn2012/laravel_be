@@ -186,13 +186,6 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
 
-        if($request->hasFile('product_image')) {
-            return response()->json([
-                'status' => 200,
-                'message' => 'Có hình',
-            ]);
-        }
-
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
             'product_price' => 'required|numeric|min:0|digits_between:1,11',
@@ -217,7 +210,7 @@ class ProductController extends Controller
             ];
             if($request->file('product_image')) {
                 $validator = Validator::make($request->all(), [
-                    'product_image' => 'image|mimes:jpg,jpeg,png|max:20480',
+                    'product_image' => 'image|mimes:jpg,jpeg,png|max:1024',
                 ]);
                 if ($validator->fails()) {
 

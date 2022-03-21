@@ -277,7 +277,6 @@ class CustomerController extends Controller
 
         return response()->json([
             'status' => 500,
-            'customers' => [],
             'message' => 'Lỗi, thử lại sau!'
         ]);
     }
@@ -410,7 +409,7 @@ class CustomerController extends Controller
 
                 return response()->json([
                     'validation_errors' => [
-                        'email' => 'The phone has already been token'
+                        'email' => 'The email has already been token'
                     ]
                 ]);
             }

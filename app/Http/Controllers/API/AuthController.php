@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Auth;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -43,8 +44,15 @@ class AuthController extends Controller
         }
         else{
             $remember = $request->has('remember') ? true : false;
-            if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_active' => 1], $remember )) {
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_active' => 1, 'is_delete' => 0], $remember )) {
+
                 $user = User::where('email', $request->email)->first();
+                $updateUser = [
+                    'last_login_at' => Carbon::now()->toDateTimeString(),
+                    'last_login_ip' => $request->getClientIp()
+                ];
+
+                User::where('email', $request->email)->update($updateUser);
 
                 $token = $user->createToken($user->email.'_Token')->plainTextToken;
                 $user->token = $token;
