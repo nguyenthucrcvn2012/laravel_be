@@ -427,7 +427,7 @@ class CustomerController extends Controller
 
                     return response()->json([
                         'status' => 200,
-                        'message' => 'Cập nhật thảnh công!',
+                        'message' => 'Cập nhật thành công!',
                     ]);
                 }
                 else{

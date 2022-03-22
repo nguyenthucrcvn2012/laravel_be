@@ -8,7 +8,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\CustomerController;
 
 Route::post('login', [AuthController::class, 'login']);
-//Route::middleware(['auth:sanctum'])->group(function () {
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('logout', [AuthController::class, 'logout']);
