@@ -316,7 +316,14 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|max:65|email|unique:App\Models\Customer,email',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:App\Models\Customer,email',
+                'regex:/^\w+[-\.\w]*@(?!(?:outlook|myemail|yahoo)\.com$)\w+[-\.\w]*?\.\w{2,4}$/'
+            ],
             'address' => 'required|max:254',
             'tel_num' => 'required|min:9|max:14',
             'customer_name' => 'required|max:254',
@@ -390,7 +397,13 @@ class CustomerController extends Controller
         $customer = $this->model->find($id);
         if($customer){
             $validator = Validator::make($request->all(), [
-                'email' => 'required|max:65|email',
+                'email' => [
+                    'required',
+                    'string',
+                    'email',
+                    'max:255',
+                    'regex:/^\w+[-\.\w]*@(?!(?:outlook|myemail|yahoo)\.com$)\w+[-\.\w]*?\.\w{2,4}$/'
+                ],
                 'address' => 'required|max:254',
                 'tel_num' => 'required|min:9|max:14',
                 'customer_name' => 'required|max:254',
