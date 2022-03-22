@@ -226,7 +226,13 @@ class UserController extends Controller
         $user = $this->model->find($id);
         if($user) {
             $validator = Validator::make($request->all(), [
-                'email' => 'required|max:65|email',
+                'email' => [
+                    'required',
+                    'string',
+                    'email',
+                    'max:255',
+                    'regex:/^\w+[-\.\w]*@(?!(?:outlook|myemail|yahoo)\.com$)\w+[-\.\w]*?\.\w{2,4}$/'
+                ],
                 'name' => 'required|max:254',
                 'group_role' => 'required|max:70',
             ]);
