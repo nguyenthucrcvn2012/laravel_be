@@ -109,7 +109,7 @@ class ProductController extends Controller
         if($request->hasFile('product_image')) {
 
             $validator = Validator::make($request->all(), [
-                'product_image' => 'image|mimes:jpg,jpeg,png|max:2048',
+                'product_image' => 'image|mimes:jpg,jpeg,png|max:1024',
             ]);
 //            |dimensions:max_width=1024,max_height=1024
 
@@ -245,6 +245,11 @@ class ProductController extends Controller
             }
         }
 
+        return response()->json([
+            'status' => 404,
+            'message' => 'Không tìm thấy dữ liệu!'
+        ]);
+
     }
 
     /**
@@ -255,21 +260,29 @@ class ProductController extends Controller
      */
     public function delete($id)
     {
-        $query = $this->model->where('product_id', $id)->update(['is_delete' => 1]);
-        if($query){
+        $product = $this->model->find($id);
+        if($product) {
+            $query = $this->model->where('product_id', $id)->update(['is_delete' => 1]);
+            if($query){
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'Xóa thành công!'
-            ]);
-        }
-        else{
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Xóa thành công!'
+                ]);
+            }
+            else{
 
-            return response()->json([
-                'status' => 404,
-                'users' => [],
-                'message' => 'Lỗi thử lại sau!'
-            ]);
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Thử lại sau!'
+                ]);
+            }
         }
+
+        return response()->json([
+            'status' => 404,
+            'message' => 'Không tìm thấy dữ liệu!'
+        ]);
+
     }
 }

@@ -341,12 +341,12 @@ class CustomerController extends Controller
 
                 return response()->json([
                     'status' => 200,
-                    'message' => 'Thêm mới thảnh công!',
+                    'message' => 'Thêm mới thành công!',
                 ]);
             }
             else{
                 return response()->json([
-                    'status' => 401,
+                    'status' => 500,
                     'message' => 'Vui lòng thử lại sau!',
                 ]);
             }
@@ -427,7 +427,7 @@ class CustomerController extends Controller
 
                     return response()->json([
                         'status' => 200,
-                        'message' => 'Cập nhật thảnh công!',
+                        'message' => 'Cập nhật thành công!',
                     ]);
                 }
                 else{
