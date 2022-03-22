@@ -56,7 +56,10 @@ class Product extends Model
 
     public function getProductImageAttribute($value)
     {
-        return str_replace('\\', '/',env("PATH_IMG").'uploads/products/'.$value);
+        if($value != null) {
+            return str_replace('\\', '/',env("PATH_IMG").'uploads/products/'.$value);
+        }
+        return $value;
     }
 
 }
