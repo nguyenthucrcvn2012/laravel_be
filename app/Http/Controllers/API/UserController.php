@@ -43,8 +43,7 @@ class UserController extends Controller
             else{
 
                 return response()->json([
-                    'status' => 404,
-                    'users' => [],
+                    'status' => 500,
                     'message' => 'Lỗi thử lại sau!'
                 ]);
             }
@@ -53,8 +52,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => 404,
-                'users' => [],
-                'message' => 'Lỗi thử lại sau!'
+                'message' => 'Không tìm thấy dữ liệu!'
             ]);
         }
 
@@ -67,6 +65,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+//        dd('ok');
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
 
         $users = $this->model->Name($request)
@@ -103,6 +102,7 @@ class UserController extends Controller
      */
     public function search(Request $request) {
 
+//        var_dump('ok');
         $arrayIDAdmin = ['nguyen.thuc.rcvn2012@gmail.com'];
 
         $users = $this->model->Name($request)
@@ -127,7 +127,7 @@ class UserController extends Controller
         };
 
         return response()->json([
-            'status' => 401,
+            'status' => 500,
             'users' => [],
             'message' => 'Lỗi, thử lại sau'
         ]);
@@ -142,7 +142,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'email' => 'required|max:65|email|unique:App\Models\User,email',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:App\Models\User,email',
+                'regex:/^\w+[-\.\w]*@(?!(?:outlook|myemail|yahoo)\.com$)\w+[-\.\w]*?\.\w{2,4}$/'
+            ],
             'password' => 'required|min:5|max:15',
             'password_confirm' => 'required|min:5|same:password|max:15',
             'name' => 'required|max:254',
@@ -175,7 +182,7 @@ class UserController extends Controller
             else {
 
                 return response()->json([
-                    'status' => 401,
+                    'status' => 500,
                     'message' => 'Vui lòng thử lại sau!',
                 ]);
             }
@@ -216,53 +223,62 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|max:65|email',
-            'name' => 'required|max:254',
-            'group_role' => 'required|max:70',
+        $user = $this->model->find($id);
+        if($user) {
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|max:65|email',
+                'name' => 'required|max:254',
+                'group_role' => 'required|max:70',
+            ]);
+
+            if($validator->fails()){
+
+                return response()->json([
+                    'validation_errors' => $validator->messages()
+                ]);
+            }
+
+            $arrayEmail = $this->model->whereNotIn('id', [$id])->pluck('email')->toArray();
+
+            if(in_array($request->email, $arrayEmail)){
+
+                return response()->json([
+                    'validation_errors' => [
+                        'email' => 'The email has already been token'
+                    ]
+                ]);
+            }
+            else{
+
+                $data = [
+                    'name' => $request->name,
+                    'email' => $request->email,
+                    'group_role' => $request->group_role,
+                    'is_active' => $request->is_active
+                ];
+
+                if($this->model->where('id', $id)->update($data)){
+
+                    return response()->json([
+                        'status' => 200,
+                        'message' => 'Cập nhật thành công',
+                    ]);
+                }
+                else {
+
+                    return response()->json([
+                        'status' => 500,
+                        'message' => 'Vui lòng thử lại sau!',
+                    ]);
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 404,
+            'message' => 'Không tìm thấy dữ liệu!',
         ]);
 
-        if($validator->fails()){
-
-            return response()->json([
-                'validation_errors' => $validator->messages()
-            ]);
-        }
-
-        $arrayEmail = $this->model->whereNotIn('id', [$id])->pluck('email')->toArray();
-
-        if(in_array($request->email, $arrayEmail)){
-
-            return response()->json([
-                'validation_errors' => [
-                    'email' => 'The email has already been token'
-                ]
-            ]);
-        }
-        else{
-
-            $data = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'group_role' => $request->group_role,
-                'is_active' => $request->is_active
-            ];
-
-            if($this->model->where('id', $id)->update($data)){
-
-                return response()->json([
-                    'status' => 200,
-                    'message' => 'Cập nhật thảnh công',
-                ]);
-            }
-            else {
-
-                return response()->json([
-                    'status' => 401,
-                    'message' => 'Vui lòng thử lại sau!',
-                ]);
-            }
-        }
     }
 
     /**
@@ -273,6 +289,7 @@ class UserController extends Controller
      */
     public function delete($id)
     {
+
         $query = $this->model->where('id', $id)->update(['is_delete' => 1]);
         if($query){
 
@@ -285,8 +302,7 @@ class UserController extends Controller
 
             return response()->json([
                 'status' => 404,
-                'users' => [],
-                'message' => 'Lỗi thử lại sau!'
+                'message' => 'Không tìm thấy dử liệu!'
             ]);
         }
     }

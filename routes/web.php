@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-
+    dd(\Illuminate\Support\Facades\Hash::make('12345678'));
     function convertArray() {
         $file_to_read = fopen(public_path('uploads/files/example.csv'), 'r');
 
