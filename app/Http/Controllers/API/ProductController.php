@@ -67,15 +67,6 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -87,7 +78,7 @@ class ProductController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
-            'product_price' => 'required|numeric|min:0|digits_between:1,11',
+            'product_price' => 'required|numeric|min:0|digits_between:1,12',
             'is_sales' => 'required',
         ]);
 
@@ -101,7 +92,7 @@ class ProductController extends Controller
         $data = [
             'product_id' => getIdProduct($request->product_name),
             'product_name' => $request->product_name,
-            'product_price' => $request->product_price,
+            'product_price' => (float)$request->product_price,
             'is_sales' => $request->is_sales,
             'description' => $request->description
         ];
@@ -168,17 +159,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-
-    }
-
-    /**
      * @param Request $request
      * @param $id
      * @return \Illuminate\Http\JsonResponse|void
@@ -188,7 +168,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
-            'product_price' => 'required|numeric|min:0|digits_between:1,11',
+            'product_price' => 'required|numeric|min:0|digits_between:1,12',
             'is_sales' => 'required',
         ]);
 
@@ -204,7 +184,7 @@ class ProductController extends Controller
         if($product) {
             $data = [
                 'product_name' => $request->input('product_name'),
-                'product_price' => $request->input('product_price'),
+                'product_price' => (float) $request->input('product_price'),
                 'is_sales' => $request->input('is_sales'),
                 'description' => $request->input('description')
             ];
@@ -227,6 +207,9 @@ class ProductController extends Controller
                 $fileName = rand(5,100).'-'.time().'.'.$file->getClientOriginalExtension();
                 $file->move('uploads/products/', $fileName);
                 $data = $data + array('product_image' => $fileName);
+            }
+            if($request->is_delete_image == true) {
+                $data = $data + array('product_image' => null);
             }
 
             if(Product::where('product_id', $id)->update($data)){
