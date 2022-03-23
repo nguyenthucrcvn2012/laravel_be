@@ -53,13 +53,14 @@ class AuthController extends Controller
                 ];
 
                 User::where('email', $request->email)->update($updateUser);
-
-                $token = $user->createToken($user->email.'_Token')->plainTextToken;
+                $createToken = $user->createToken($user->email.'_Token');
+                $token = $createToken->plainTextToken;
                 $user->token = $token;
+                $user->expired_at = Carbon::now()->addDay(1)->toDateTimeString();
                 return response()->json([
                     'status' => 200,
                     'user' => $user,
-                    'message' => 'Đăng nhập thành công'
+                    'message' => 'Đăng nhập thành công',
                 ]);
 
             }
