@@ -76,16 +76,18 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
-            'product_price' => 'required|numeric|min:0|digits_between:1,12',
+            'product_price' => 'required|numeric|min:0|digits_between:1,11',
             'is_sales' => 'required',
         ]);
 
         if($validator->fails()){
 
             return response()->json([
-                'validation_errors' => $validator->messages()
+                'validation_errors' => $validator->messages(),
+                'status' => 422
             ]);
         }
 
@@ -168,14 +170,15 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
-            'product_price' => 'required|numeric|min:0|digits_between:1,12',
+            'product_price' => 'required|numeric|min:0|digits_between:1,11',
             'is_sales' => 'required',
         ]);
 
         if($validator->fails()){
 
             return response()->json([
-                'validation_errors' => $validator->messages()
+                'validation_errors' => $validator->messages(),
+                'status' => 422
             ]);
         }
 
