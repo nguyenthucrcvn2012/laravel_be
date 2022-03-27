@@ -77,11 +77,6 @@ class UserController extends Controller
             ->whereNotIn('email', $arrayIDAdmin)
             ->paginate(10);
 
-//        $users->appends(['name' => $request->input('name')]);
-//        $users->appends(['email' => $request->input('email')]);
-//        $users->appends(['group_role' => $request->input('group_role')]);
-//        $users->appends(['is_active' => $request->input('is_active')]);
-
         if($users){
             return response()->json([
                 'status' => 200,
@@ -113,11 +108,6 @@ class UserController extends Controller
             ->where('is_delete', 0)
             ->whereNotIn('email', $arrayIDAdmin)
             ->paginate(10);
-
-        $users->appends(['name' => $request->input('name')]);
-        $users->appends(['email' => $request->input('email')]);
-        $users->appends(['group_role' => $request->input('group_role')]);
-        $users->appends(['is_active' => $request->input('is_active')]);
 
         if($users){
             return response()->json([
@@ -170,7 +160,6 @@ class UserController extends Controller
                 'password' => Hash::make($request->password),
                 'group_role' => $request->group_role,
                 'is_active' => $request->is_active
-
             ];
             if($this->model->create($data)){
 

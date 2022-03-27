@@ -67,7 +67,6 @@ class ProductController extends Controller
         ]);
     }
 
-
     /**
      * Store a newly created resource in storage.
      *
@@ -79,7 +78,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
-            'product_price' => 'required|numeric|min:0|digits_between:1,11',
+            'product_price' => 'required|numeric|min:0|max:99999999999',
             'is_sales' => 'required',
         ]);
 
@@ -104,7 +103,6 @@ class ProductController extends Controller
             $validator = Validator::make($request->all(), [
                 'product_image' => 'image|mimes:jpg,jpeg,png|max:1024',
             ]);
-//            |dimensions:max_width=1024,max_height=1024
 
             if($validator->fails()){
 
@@ -170,7 +168,7 @@ class ProductController extends Controller
 
         $validator = Validator::make($request->all(), [
             'product_name' => 'required|max:255|min:6',
-            'product_price' => 'required|numeric|min:0|digits_between:1,11',
+            'product_price' => 'required|numeric|min:0|max:99999999999',
             'is_sales' => 'required',
         ]);
 
@@ -233,7 +231,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => 404,
-            'message' => 'Không tìm thấy dữ liệu!'
+            'message' => 'Không tìm thấy sản phẩm!'
         ]);
 
     }
@@ -267,7 +265,7 @@ class ProductController extends Controller
 
         return response()->json([
             'status' => 404,
-            'message' => 'Không tìm thấy dữ liệu!'
+            'message' => 'Không tìm thấy sản phẩm!'
         ]);
 
     }

@@ -95,7 +95,7 @@ class CustomerController extends Controller
             if($datasCsv[0] === false) {
 
                 return response()->json([
-                    'status' => 401,
+                    'status' => 400,
                     'message' => $datasCsv[1]
                 ]);
             }
@@ -276,7 +276,7 @@ class CustomerController extends Controller
         }
 
         return response()->json([
-            'status' => 500,
+            'status' => 400,
             'message' => 'Lỗi, thử lại sau!'
         ]);
     }
@@ -294,13 +294,11 @@ class CustomerController extends Controller
             ->paginate(10);
 
         if($customers){
-
             return response()->json([
                 'status' => 200,
                 'customers' => $customers
             ]);
         }
-
         return response()->json([
             'status' => 500,
             'message' => 'Lỗi thử lại sau'
@@ -325,13 +323,14 @@ class CustomerController extends Controller
                 'regex:/^\w+[-\.\w]*@(?!(?:outlook|myemail|yahoo)\.com$)\w+[-\.\w]*?\.\w{2,4}$/'
             ],
             'address' => 'required|max:254',
-            'tel_num' => 'required|min:9|max:14',
+            'tel_num' => 'required|numeric|digits_between:9,14',
             'customer_name' => 'required|max:254',
         ]);
 
         if($validator->fails()){
 
             return response()->json([
+                'status' => 422,
                 'validation_errors' => $validator->messages()
             ]);
         }
@@ -379,7 +378,7 @@ class CustomerController extends Controller
         else {
 
             return response()->json([
-                'status' => 404,
+                'status' => 400,
                 'message' => 'Không tìm thấy dữ liệu'
             ]);
         }
@@ -405,13 +404,13 @@ class CustomerController extends Controller
                     'regex:/^\w+[-\.\w]*@(?!(?:outlook|myemail|yahoo)\.com$)\w+[-\.\w]*?\.\w{2,4}$/'
                 ],
                 'address' => 'required|max:254',
-                'tel_num' => 'required|min:9|max:14',
+                'tel_num' => 'required|numeric|digits_between:9,14',
                 'customer_name' => 'required|max:254',
             ]);
 
             if($validator->fails()){
-
                 return response()->json([
+                    'status' => 422,
                     'validation_errors' => $validator->messages()
                 ]);
             }
@@ -445,7 +444,7 @@ class CustomerController extends Controller
                 }
                 else{
                     return response()->json([
-                        'status' => 401,
+                        'status' => 400,
                         'message' => 'Vui lòng thử lại sau!',
                     ]);
                 }
@@ -453,7 +452,7 @@ class CustomerController extends Controller
         }
 
         return response()->json([
-            'status' => 404,
+            'status' => 400,
             'message' => 'Không tìm thấy dữ liệu!',
         ]);
 
